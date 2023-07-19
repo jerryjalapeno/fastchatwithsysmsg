@@ -6,7 +6,7 @@ import sys
 import time
 from typing import Iterable, Optional, Dict
 import warnings
-
+from fastchat.conversation import Conversation
 import psutil
 import torch
 from transformers import (
@@ -285,6 +285,7 @@ def chat_loop(
     revision: str,
     judge_sent_end: bool,
     debug: bool,
+    custom_sysmsg: str,
     history: bool = True,
 ):
     # Model
@@ -314,10 +315,20 @@ def chat_loop(
 
     # Chat
     def new_chat():
-        if conv_template:
-            conv = get_conv_template(conv_template)
-        else:
-            conv = get_conversation_template(model_path)
+        #if conv_template:
+            #conv = get_conv_template(conv_template)
+        #else:
+            #conv = get_conversation_template(model_path)
+        conv = Conversation(
+            name="vicuna_v1.1",
+            system=custom_sysmsg,  # Set the system message from the dataset
+            roles=("SYSTEM", "USER", "ASSISTANT"),
+            messages=(),  # Removed initial system message here
+            offset=0,
+            sep_style=SeparatorStyle.ADD_COLON_TWO,
+            sep=" ",
+            sep2="</s>",
+        )
         return conv
 
     conv = None
@@ -327,7 +338,7 @@ def chat_loop(
             conv = new_chat()
 
         try:
-            inp = chatio.prompt_for_input(conv.roles[0])
+            inp = chatio.prompt_for_input(conv.roles[1])
         except EOFError:
             inp = ""
 
@@ -340,8 +351,8 @@ def chat_loop(
             conv = new_chat()
             continue
 
-        conv.append_message(conv.roles[0], inp)
-        conv.append_message(conv.roles[1], None)
+        conv.append_message(conv.roles[1], inp)
+        conv.append_message(conv.roles[2], None)
         prompt = conv.get_prompt()
 
         if is_codet5p:  # codet5p is a code completion model.
@@ -358,7 +369,7 @@ def chat_loop(
             "echo": False,
         }
 
-        chatio.prompt_for_output(conv.roles[1])
+        chatio.prompt_for_output(conv.roles[2])
         output_stream = generate_stream_func(
             model,
             tokenizer,

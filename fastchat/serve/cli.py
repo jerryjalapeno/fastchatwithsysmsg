@@ -60,6 +60,8 @@ class SimpleChatIO(ChatIO):
                 pre = now
         print(" ".join(output_text[pre:]), flush=True)
         return " ".join(output_text)
+    def prompt_for_sysmsg(self):
+        return input("Enter system message: ")
 
 
 class RichChatIO(ChatIO):
@@ -187,6 +189,8 @@ def main(args):
     else:
         raise ValueError(f"Invalid style for console: {args.style}")
     try:
+        custom_sysmsg = ""
+        custom_sysmsg = chatio.prompt_for_sysmsg()
         chat_loop(
             args.model_path,
             args.device,
@@ -208,6 +212,7 @@ def main(args):
             args.revision,
             args.judge_sent_end,
             args.debug,
+            custom_sysmsg=custom_sysmsg,
             history=not args.no_history,
         )
     except KeyboardInterrupt:

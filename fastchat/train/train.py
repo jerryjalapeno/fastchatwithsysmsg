@@ -29,6 +29,7 @@ from transformers.trainer_pt_utils import LabelSmoother
 
 from fastchat.conversation import SeparatorStyle
 from fastchat.model.model_adapter import get_conversation_template
+from fastchat.conversation import Conversation
 
 IGNORE_TOKEN_ID = LabelSmoother.ignore_index
 
@@ -78,24 +79,27 @@ def safe_save_model_for_hf_trainer(trainer: transformers.Trainer, output_dir: st
         trainer._save(output_dir, state_dict=cpu_state_dict)  # noqa
 
 
-def preprocess(
-    sources,
-    tokenizer: transformers.PreTrainedTokenizer,
-) -> Dict:
-    conv = get_conversation_template("vicuna")
-    roles = {"human": conv.roles[0], "gpt": conv.roles[1]}
+def preprocess(sources, tokenizer: transformers.PreTrainedTokenizer) -> Dict:
+    roles = {"system": "SYSTEM", "human": "USER", "gpt": "ASSISTANT"}
 
     # Apply prompt templates
     conversations = []
     for i, source in enumerate(sources):
-        if roles[source[0]["from"]] != conv.roles[0]:
-            # Skip the first one if it is not from human
-            source = source[1:]
+        # Create a new conversation template for each source, including its unique system message
+        conv = Conversation(
+            name="vicuna_v1.1",
+            system=source[0]["value"],  # Set the system message from the dataset
+            roles=("SYSTEM", "USER", "ASSISTANT"),
+            messages=(),  # Removed initial system message here
+            offset=0,
+            sep_style=SeparatorStyle.ADD_COLON_TWO,
+            sep=" ",
+            sep2="</s>",
+        )
 
-        conv.messages = []
         for j, sentence in enumerate(source):
             role = roles[sentence["from"]]
-            assert role == conv.roles[j % 2], f"{i}"
+            assert role == conv.roles[(j % (len(conv.roles) - 1)) + 1 if j > 0 else 0], f"{i}"
             conv.append_message(role, sentence["value"])
         conversations.append(conv.get_prompt())
 
