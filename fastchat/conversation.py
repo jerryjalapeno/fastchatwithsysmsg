@@ -196,7 +196,7 @@ class Conversation:
 
     def append_message(self, role: str, message: str):
         """Append a new message."""
-        self.messages.append([role, message])
+        self.messages.append((role, message))
 
     def update_last_message(self, message: str):
         """Update the last output.
@@ -204,7 +204,9 @@ class Conversation:
         The last message is typically set to be None when constructing the prompt,
         so we need to update it in-place after getting the response from a model.
         """
-        self.messages[-1][1] = message
+        role, _ = self.messages[-1]
+        self.messages[-1] = (role, message)
+
 
     def to_gradio_chatbot(self):
         """Convert the conversation to gradio chatbot format."""

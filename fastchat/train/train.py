@@ -90,7 +90,7 @@ def preprocess(sources, tokenizer: transformers.PreTrainedTokenizer) -> Dict:
             name="vicuna_v1.1",
             system=source[0]["value"],  # Set the system message from the dataset
             roles=("SYSTEM", "USER", "ASSISTANT"),
-            messages=(),  # Removed initial system message here
+            messages=[],  # Removed initial system message here
             offset=0,
             sep_style=SeparatorStyle.ADD_COLON_TWO,
             sep=" ",
