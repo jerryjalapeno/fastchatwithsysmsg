@@ -234,8 +234,8 @@ def add_text(state, model_selector, text, request: gr.Request):
         ) * 5
 
     text = text[:INPUT_CHAR_LEN_LIMIT]  # Hard cut-off
-    conv.append_message(conv.roles[0], text)
-    conv.append_message(conv.roles[1], None)
+    conv.append_message(conv.roles[1], text)
+    conv.append_message(conv.roles[2], None)
     return (state, state.to_gradio_chatbot(), "") + (disable_btn,) * 5
 
 
