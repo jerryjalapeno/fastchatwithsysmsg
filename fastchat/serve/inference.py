@@ -323,9 +323,9 @@ def chat_loop(
             name="vicuna_v1.1",
             system=custom_sysmsg,  # Set the system message from the dataset
             roles=("SYSTEM", "USER", "ASSISTANT"),
-            messages=[],  # Removed initial system message here
+            messages=(),  # Removed initial system message here
             offset=0,
-            sep_style=SeparatorStyle.ADD_COLON_TWO,
+            sep_style=SeparatorStyle.ADD_COLON_THREE,
             sep=" ",
             sep2="</s>",
         )
