@@ -77,24 +77,6 @@ class Conversation:
                 else:
                     ret += role + ": "  # must be end with a space
             return ret
-        elif self.sep_style == SeparatorStyle.ADD_COLON_THREE:
-            seps = [self.sep, self.sep2]
-            ret = self.system + seps[0]
-            for i, (system, user, assistant) in enumerate(self.messages):
-                if system:
-                    ret += "System: " + system + seps[i % 3]
-                else:
-                    ret += "System:"
-                if user:
-                    ret += "User: " + user + seps[(i+1) % 3]
-                else:
-                    ret += "User:"
-                if assistant:
-                    ret += "Assistant: " + assistant + seps[(i+2) % 3]
-                else:
-                    ret += "Assistant:"
-            return ret
-
         elif self.sep_style == SeparatorStyle.ADD_NEW_LINE_SINGLE:
             ret = "" if self.system == "" else self.system + self.sep
             for role, message in self.messages:
