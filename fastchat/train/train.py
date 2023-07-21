@@ -99,7 +99,8 @@ def preprocess(sources, tokenizer: transformers.PreTrainedTokenizer) -> Dict:
 
         for j, sentence in enumerate(source):
             role = roles[sentence["from"]]
-            assert role == conv.roles[(j % (len(conv.roles) - 1)) + 1 if j > 0 else 0], f"{i}"
+            expected_role = "SYSTEM" if j == 0 else ("USER" if j % 2 == 1 else "ASSISTANT")
+            assert role == expected_role, f"Error at index {i}, expected {expected_role} but got {role}"
             conv.append_message(role, sentence["value"])
         conversations.append(conv.get_prompt())
 
